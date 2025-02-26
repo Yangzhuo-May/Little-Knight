@@ -21,6 +21,9 @@ public class PlayerControl : MonoBehaviour
     private BoxCollider2D collider;
     private Vector2 colliderSize;
 
+    public Transform attackCheckPos;
+    public Vector2 attackCheckSize = new Vector2(1f, 0.2f);
+
     public Rigidbody2D rb;
     public float speed;
     public float jumpForce;
@@ -30,7 +33,6 @@ public class PlayerControl : MonoBehaviour
         move = actions.FindActionMap("Player").FindAction("Move");
         jump = actions.FindActionMap("Player").FindAction("Jump");
         attack = actions.FindActionMap("Player").FindAction("Attack");
-
         rb = GetComponent<Rigidbody2D>();
 
         animator = GetComponent<Animator>();
@@ -54,6 +56,7 @@ public class PlayerControl : MonoBehaviour
     {
         Move();
 
+        animator.SetFloat("yVelocity", rb.velocity.y);
         // transform.position = new Vector2(Mathf.Clamp(transform.position.x, -4.5f, 4.5f), transform.position.y);
 
     }
@@ -79,11 +82,12 @@ public class PlayerControl : MonoBehaviour
 
     private bool isGrounded()
     {
-        Vector2 rayOrigin = (Vector2)transform.position + Vector2.down * (collider.bounds.extents.y + 0.1f);
-
+        Vector2 rayOrigin = (Vector2)transform.position + Vector2.down * 0.1f;
         Debug.DrawRay(rayOrigin, Vector2.down * 0.5f, Color.red);
         bool isGrounded = Physics2D.Raycast(rayOrigin, Vector2.down, 0.5f);
+        
         animator.SetBool("isGrounded", isGrounded);
+
         return isGrounded;
     }
 
@@ -95,8 +99,21 @@ public class PlayerControl : MonoBehaviour
         }
 
         rb.velocity = new Vector2(rb.velocity.x, jumpForce);
-
         animator.SetTrigger("isJumping");
+    }
+
+    public void OnAttack(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            animator.SetTrigger("isAttacking");
+        }
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        //Gizmos.color = Color.yellow;
+        //Gizmos.DrawCube(new Vector3(attackCheckPos.position.x, 0, 0), attackCheckSize);
     }
 
     void Flip()
