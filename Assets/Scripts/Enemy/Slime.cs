@@ -22,6 +22,8 @@ public class Slime : MonoBehaviour, IEnemy
     private float counter;
     private float waitTime = 3.0f;
     private bool forward, backward;
+    private bool isFacingRight = true;
+    private SpriteRenderer spriteRenderer;
 
     public float speed;
     public int moveDistance;
@@ -30,6 +32,8 @@ public class Slime : MonoBehaviour, IEnemy
     {
         collider = GetComponent<BoxCollider2D>();
         colliderSize = collider.size;
+
+        spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
     void Update()
@@ -86,14 +90,17 @@ public class Slime : MonoBehaviour, IEnemy
 
         if ((Vector2)transform.position == initialPostion)
         {
+            if (!isFacingRight) Flip();
             forward = true;
             backward = false;
         }
         else if ((Vector2)transform.position == targetPostion)
         {
+            if (isFacingRight) Flip();
             backward = true;
             forward = false;
         }
+
 
         if (forward)
         {
@@ -119,6 +126,12 @@ public class Slime : MonoBehaviour, IEnemy
         {
             UpdateState(IEnemy.State.general);
         }
+    }
+
+    void Flip()
+    {
+        isFacingRight = !isFacingRight;
+        spriteRenderer.flipX = !spriteRenderer.flipX;
     }
 
     /* if player is within the slime's attack range
