@@ -32,7 +32,6 @@ public class Slime : MonoBehaviour, IEnemy
     {
         collider = GetComponent<BoxCollider2D>();
         colliderSize = collider.size;
-
         spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
@@ -59,7 +58,6 @@ public class Slime : MonoBehaviour, IEnemy
         initialPostion = (Vector2)transform.position;
         targetPostion = new Vector2(initialPostion.x + moveDistance, initialPostion.y);
     }
- 
 
     public void UpdateState(IEnemy.State state)
     {
@@ -88,29 +86,8 @@ public class Slime : MonoBehaviour, IEnemy
     public void GeneralBehavior()
     {
 
-        if ((Vector2)transform.position == initialPostion)
-        {
-            if (!isFacingRight) Flip();
-            forward = true;
-            backward = false;
-        }
-        else if ((Vector2)transform.position == targetPostion)
-        {
-            if (isFacingRight) Flip();
-            backward = true;
-            forward = false;
-        }
-
-
-        if (forward)
-        {
-            transform.position = Vector2.MoveTowards(transform.position, targetPostion, Time.deltaTime * speed);
-        }
-        else if (backward)
-        {
-            transform.position = Vector2.MoveTowards(transform.position, initialPostion, Time.deltaTime * speed);
-        }
-
+        Visuals();
+        Patrol();
         if (SawPlayer())
         {
             UpdateState(IEnemy.State.attack);
@@ -128,10 +105,38 @@ public class Slime : MonoBehaviour, IEnemy
         }
     }
 
-    void Flip()
+    private void Flip()
     {
         isFacingRight = !isFacingRight;
         spriteRenderer.flipX = !spriteRenderer.flipX;
+    }
+
+    private void Visuals()
+    {
+        if ((Vector2)transform.position == initialPostion)
+        {
+            if (!isFacingRight) Flip();
+            forward = true;
+            backward = false;
+        }
+        else if ((Vector2)transform.position == targetPostion)
+        {
+            if (isFacingRight) Flip();
+            backward = true;
+            forward = false;
+        }
+    }
+
+    private void Patrol()
+    {
+        if (forward)
+        {
+            transform.position = Vector2.MoveTowards(transform.position, targetPostion, Time.deltaTime * speed);
+        }
+        else if (backward)
+        {
+            transform.position = Vector2.MoveTowards(transform.position, initialPostion, Time.deltaTime * speed);
+        }
     }
 
     /* if player is within the slime's attack range

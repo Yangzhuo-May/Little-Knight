@@ -3,11 +3,11 @@ using UnityEngine;
 public class AttackStateHandler : StateMachineBehaviour
 {
     private CircleCollider2D attackCollider;
-    private const string colliderName = "AttackCheckPos";
+    private const string COLLIDER_NAME = "AttackCheckPos";
 
     public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        attackCollider = animator.transform.Find(colliderName).GetComponent<CircleCollider2D>();
+        attackCollider = animator.transform.Find(COLLIDER_NAME).GetComponent<CircleCollider2D>();
 
         if (attackCollider != null)
         {
