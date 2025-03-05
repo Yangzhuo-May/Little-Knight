@@ -24,6 +24,8 @@ public class Slime : MonoBehaviour, IEnemy
     private bool forward, backward;
     private bool isFacingRight = true;
     private SpriteRenderer spriteRenderer;
+    private bool sawPlayer;
+    private CircleCollider2D visionCollider;
 
     public float speed;
     public int moveDistance;
@@ -33,6 +35,8 @@ public class Slime : MonoBehaviour, IEnemy
         collider = GetComponent<BoxCollider2D>();
         colliderSize = collider.size;
         spriteRenderer = GetComponent<SpriteRenderer>();
+
+        visionCollider = GetComponent<CircleCollider2D>();
     }
 
     void Update()
@@ -64,14 +68,31 @@ public class Slime : MonoBehaviour, IEnemy
         _currentState = state;
     }
 
-    public bool SawPlayer()
+    void OnTriggerEnter2D(Collider2D other)
     {
-        Debug.DrawRay((Vector2)transform.position + Vector2.right * ((colliderSize.x / 2) + 0.25f), Vector2.right * 2f, Color.green);
-
-        bool sawPlayer = Physics2D.Raycast((Vector2)transform.position + Vector2.right * ((colliderSize.x / 2) + 0.25f), Vector2.right, 2f);
-
-        return sawPlayer;
+        if (other.CompareTag("Player"))
+        {
+            sawPlayer = true;
+        }
     }
+
+    void OnTriggerExit2D(Collider2D other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            sawPlayer = false;
+        }
+    }
+    //public bool SawPlayer()
+    //{
+    //    Vector2 offsetPosition = (Vector2)transform.position + new Vector2(colliderSize.x / 2 + 0.5f, 0.25f);
+
+    //    Debug.DrawRay(offsetPosition, Vector2.right * 2f, Color.green);
+
+    //    bool sawPlayer = Physics2D.Raycast(offsetPosition, Vector2.right, 2f);
+
+    //    return sawPlayer;
+    //}
 
     public void Idle()
     {
@@ -85,21 +106,22 @@ public class Slime : MonoBehaviour, IEnemy
 
     public void GeneralBehavior()
     {
-
         Visuals();
         Patrol();
-        if (SawPlayer())
+
+        if (sawPlayer)
         {
             UpdateState(IEnemy.State.attack);
         }
-
     }
 
     public void Attack()
     {
-        Debug.Log("is attacking");
+        Transform playerPostion = GameObject.Find("Player").transform;
 
-        if (!SawPlayer())
+        transform.position = Vector2.MoveTowards(transform.position, (Vector2)playerPostion.position + new Vector2(0.5f, 0), Time.deltaTime * speed);
+
+        if (!sawPlayer)
         {
             UpdateState(IEnemy.State.general);
         }
@@ -108,7 +130,11 @@ public class Slime : MonoBehaviour, IEnemy
     private void Flip()
     {
         isFacingRight = !isFacingRight;
-        spriteRenderer.flipX = !spriteRenderer.flipX;
+        // spriteRenderer.flipX = !spriteRenderer.flipX;
+
+        Vector3 localScale = transform.localScale;
+        localScale.x = -localScale.x;
+        transform.localScale = localScale;
     }
 
     private void Visuals()

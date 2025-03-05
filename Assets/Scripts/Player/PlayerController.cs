@@ -19,6 +19,10 @@ public class PlayerController : MonoBehaviour
     public float speed;
     public float jumpForce;
 
+
+    public float visionRadius = 5f; 
+    public float visionAngle = 45f;
+
     private void Awake()
     {
         inputsManager = GetComponent<InputsManager>();
