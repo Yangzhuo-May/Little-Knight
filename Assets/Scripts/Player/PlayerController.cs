@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -23,6 +24,10 @@ public class PlayerController : MonoBehaviour
     public float visionRadius = 5f; 
     public float visionAngle = 45f;
 
+    public Transform groundCheckPos;
+    public Vector2 groundCheckSize = new Vector2(0.5f, 0.05f);
+    public LayerMask groundLayer;
+
     private void Awake()
     {
         inputsManager = GetComponent<InputsManager>();
@@ -38,16 +43,20 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
-        Move();
-
         animationManager.SetVelocitY(rb.velocity.y);
         // transform.position = new Vector2(Mathf.Clamp(transform.position.x, -4.5f, 4.5f), transform.position.y);
+    }
+
+    private void FixedUpdate()
+    {
+        Move();
     }
 
     private void Move()
     {
         float xMove = inputsManager.ReturnMoveValue();
-        transform.position += speed * Time.deltaTime * xMove * transform.right;
+        // transform.position += speed * Time.deltaTime * xMove * transform.right;
+        rb.position += speed * Time.deltaTime * xMove * (Vector2)transform.right;
 
         animationManager.SetRunning(true);
 
@@ -65,11 +74,17 @@ public class PlayerController : MonoBehaviour
 
     private bool IsGrounded()
     {
-        Vector2 rayOrigin = (Vector2)transform.position + Vector2.down * 0.1f;
-        Debug.DrawRay(rayOrigin, Vector2.down * 0.5f, Color.red);
-        bool isGrounded = Physics2D.Raycast(rayOrigin, Vector2.down, 0.5f);
+        //Vector2 rayOrigin = (Vector2)transform.position + Vector2.down * 0.1f;
+        //Debug.DrawRay(rayOrigin, Vector2.down * 0.5f, Color.red);
+        //bool isGrounded = Physics2D.Raycast(rayOrigin, Vector2.down, 0.5f);
 
-        return isGrounded;
+        //return isGrounded;
+
+        if (Physics2D.OverlapBox(groundCheckPos.position, groundCheckSize, 0, groundLayer))
+        {
+            return true;
+        }
+        return false;
     }
 
     public void OnJump(InputAction.CallbackContext context)
@@ -99,5 +114,11 @@ public class PlayerController : MonoBehaviour
         Vector3 localScale = transform.localScale;
         localScale.x = -localScale.x; 
         transform.localScale = localScale;
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.white;
+        Gizmos.DrawWireCube(groundCheckPos.position, groundCheckSize);
     }
 }
